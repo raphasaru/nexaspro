@@ -27,6 +27,11 @@
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    html, body {
+      overflow-x: hidden;
+      width: 100%;
+    }
+
     body {
       font-family: var(--font-body);
       background: var(--bg-deep);
@@ -37,8 +42,15 @@
 
     .container {
       max-width: 960px;
+      width: 100%;
       margin: 0 auto;
-      padding: 2rem 1.5rem 4rem;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     /* Header */
@@ -314,6 +326,23 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    @media (max-width: 600px) {
+      .product-table thead th,
+      .product-table tbody td {
+        padding: 0.5rem 0.5rem;
+        font-size: 0.78rem;
+      }
+      .product-thumb {
+        width: 36px;
+        height: 36px;
+      }
+      .qty-input {
+        width: 54px;
+        padding: 0.35rem 0.3rem;
+        font-size: 0.78rem;
+      }
+    }
+
     /* Toast notification */
     .toast {
       position: fixed;
@@ -347,6 +376,7 @@
 
   <!-- Machines -->
   <h2 class="section-title">Maquinas (Genesis / Blaze)</h2>
+  <div class="table-wrapper">
   <table class="product-table" id="maquinas-table">
     <thead>
       <tr>
@@ -359,9 +389,11 @@
     </thead>
     <tbody></tbody>
   </table>
+  </div>
 
   <!-- Cartridges -->
   <h2 class="section-title">Cartuchos (RL / RS / RM / M1)</h2>
+  <div class="table-wrapper">
   <table class="product-table" id="cartuchos-table">
     <thead>
       <tr>
@@ -374,6 +406,7 @@
     </thead>
     <tbody id="cartuchos-body"></tbody>
   </table>
+  </div>
 
   <!-- Customer form -->
   <div class="customer-section">
