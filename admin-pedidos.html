@@ -1,0 +1,2001 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexas Pro — Painel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-deep: #0a0a0a;
+      --bg-card: #141414;
+      --bg-input: #1c1c1c;
+      --gold: #c9a84c;
+      --gold-light: #f9efc7;
+      --gold-dim: rgba(201, 168, 76, 0.15);
+      --text: #e0e0e0;
+      --text-muted: #6a6a6a;
+      --danger: #d44;
+      --border: #2a2a2a;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-body: 'Outfit', sans-serif;
+      --blue: #4a9eff;
+      --green: #4caf50;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-deep);
+      color: var(--text);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .glow {
+      position: fixed;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+      top: -150px; right: -100px;
+      pointer-events: none;
+    }
+    .glow-2 {
+      position: fixed;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,0.04) 0%, transparent 70%);
+      bottom: -100px; left: -100px;
+      pointer-events: none;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 32px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .topbar-brand {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      letter-spacing: 5px;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .topbar-email {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+    .btn-logout {
+      padding: 8px 18px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-logout:hover {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    /* ── Tabs ── */
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+      padding: 0 32px;
+      position: sticky;
+      top: 61px;
+      z-index: 99;
+    }
+    .tab-btn {
+      padding: 14px 28px;
+      background: none;
+      border: none;
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      letter-spacing: 3px;
+      color: var(--text-muted);
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--gold); }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 12px; right: 12px;
+      height: 2px;
+      background: var(--gold);
+      border-radius: 2px 2px 0 0;
+    }
+
+    /* ── Content ── */
+    .content {
+      padding: 24px 32px 60px;
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+    .tab-panel { display: none; animation: fadeIn 0.3s ease-out; }
+    .tab-panel.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Cards (preorders) ── */
+    .preorder-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 16px;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+    .preorder-card:hover { border-color: #3a3a3a; }
+    .preorder-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 24px; right: 24px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0.2;
+    }
+    .po-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    .po-number {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      color: var(--gold);
+    }
+    .po-date {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+    .po-customer {
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+    }
+    .po-customer strong {
+      color: var(--gold-light);
+      font-weight: 500;
+    }
+    .po-customer span {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      margin-left: 12px;
+    }
+
+    /* ── Items table (in cards) ── */
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 0.85rem;
+    }
+    .items-table th {
+      text-align: left;
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .items-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #1e1e1e;
+      color: var(--text);
+      font-weight: 300;
+    }
+    .items-table tr:last-child td { border-bottom: none; }
+
+    /* ── Action buttons ── */
+    .po-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 10px 22px;
+      border: none;
+      border-radius: 6px;
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-gold {
+      background: var(--gold);
+      color: #0a0a0a;
+    }
+    .btn-gold:hover:not(:disabled) { background: #d4b05a; }
+    .btn-danger-outline {
+      background: transparent;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    .btn-danger-outline:hover:not(:disabled) {
+      background: rgba(221,68,68,0.1);
+    }
+    .btn-sm {
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      letter-spacing: 1.5px;
+    }
+    .btn-blue {
+      background: var(--blue);
+      color: #fff;
+    }
+    .btn-blue:hover:not(:disabled) { background: #5babff; }
+    .btn-green {
+      background: var(--green);
+      color: #fff;
+    }
+    .btn-green:hover:not(:disabled) { background: #5cb860; }
+    .btn-whatsapp {
+      background: #25d366;
+      color: #fff;
+      text-decoration: none;
+      padding: 10px 22px;
+      border-radius: 6px;
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+    .btn-whatsapp:hover { background: #20bd5a; }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+      font-weight: 300;
+      font-size: 0.95rem;
+    }
+    .empty-state .empty-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+      opacity: 0.3;
+    }
+
+    /* ── Orders table ── */
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+    .filter-bar label {
+      font-size: 0.7rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .filter-bar select, .filter-bar input, .search-input {
+      padding: 10px 14px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 300;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .filter-bar select:focus, .filter-bar input:focus, .search-input:focus {
+      border-color: var(--gold);
+    }
+    .search-input { width: 280px; }
+
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    .orders-table th {
+      text-align: left;
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .orders-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #1a1a1a;
+      font-weight: 300;
+      vertical-align: middle;
+    }
+    .orders-table tbody tr {
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .orders-table tbody tr:hover { background: rgba(201,168,76,0.03); }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .badge-approved { background: var(--gold-dim); color: var(--gold); }
+    .badge-shipped { background: rgba(74,158,255,0.12); color: var(--blue); }
+    .badge-delivered { background: rgba(76,175,80,0.12); color: var(--green); }
+
+    .inline-select, .inline-input {
+      padding: 6px 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      font-weight: 300;
+      outline: none;
+      transition: border-color 0.2s;
+      max-width: 130px;
+    }
+    .inline-select:focus, .inline-input:focus { border-color: var(--gold); }
+    .inline-input { width: 90px; text-align: center; }
+
+    .order-detail-row td {
+      padding: 0 !important;
+      border-bottom: 1px solid var(--border) !important;
+    }
+    .order-detail-inner {
+      padding: 16px 14px 16px 40px;
+      background: rgba(201,168,76,0.02);
+      animation: fadeIn 0.2s ease-out;
+    }
+    .order-detail-inner table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .order-detail-inner table th {
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 6px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .order-detail-inner table td {
+      padding: 6px 10px;
+      font-weight: 300;
+      border-bottom: 1px solid #1a1a1a;
+    }
+
+    /* ── Stock table ── */
+    .stock-group-header {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      letter-spacing: 3px;
+      color: var(--gold);
+      padding: 20px 0 8px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0;
+    }
+    .stock-group-header:first-child { padding-top: 0; }
+
+    .stock-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-bottom: 24px;
+    }
+    .stock-table th {
+      text-align: left;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .stock-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #1a1a1a;
+      font-weight: 300;
+      vertical-align: middle;
+    }
+
+    .stock-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .stock-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .stock-dot.green { background: var(--green); }
+    .stock-dot.yellow { background: #f5a623; }
+    .stock-dot.red { background: var(--danger); }
+    .badge-esgotado {
+      background: rgba(221,68,68,0.15);
+      color: var(--danger);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+
+    .stock-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .stock-btn {
+      width: 28px; height: 28px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s, color 0.15s;
+      line-height: 1;
+    }
+    .stock-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .stock-val {
+      width: 52px;
+      text-align: center;
+      padding: 4px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 400;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .stock-val:focus { border-color: var(--gold); }
+
+    .editable-cell {
+      padding: 4px 8px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 300;
+      outline: none;
+      width: 90px;
+      text-align: center;
+      transition: border-color 0.2s, background 0.2s;
+      cursor: pointer;
+    }
+    .editable-cell:focus {
+      border-color: var(--gold);
+      background: var(--bg-input);
+      cursor: text;
+    }
+
+    .save-check {
+      color: var(--green);
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      margin-left: 4px;
+    }
+    .save-check.show { opacity: 1; }
+
+    /* ── Toast ── */
+    .toast-container {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      padding: 14px 22px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 400;
+      animation: toastIn 0.3s ease-out;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      max-width: 380px;
+    }
+    .toast-success {
+      background: var(--gold);
+      color: #0a0a0a;
+    }
+    .toast-error {
+      background: var(--danger);
+      color: #fff;
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(40px); }
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 5000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.2s ease-out;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+    }
+    .modal-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 32px; right: 32px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0.3;
+    }
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      letter-spacing: 2px;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+    .modal-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 14px 16px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 300;
+      outline: none;
+      resize: vertical;
+      margin-bottom: 20px;
+      transition: border-color 0.2s;
+    }
+    .modal-textarea:focus { border-color: var(--gold); }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    .btn-cancel {
+      padding: 10px 22px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .btn-cancel:hover { border-color: var(--text-muted); }
+    .btn-confirm-danger {
+      padding: 10px 22px;
+      background: var(--danger);
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-confirm-danger:hover { background: #e55; }
+    .btn-confirm-danger:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Loading spinner ── */
+    .loader {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px;
+    }
+    .loader-spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-deep); }
+    ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .topbar { padding: 12px 16px; }
+      .tab-bar { padding: 0 16px; }
+      .content { padding: 16px; }
+      .tab-btn { padding: 12px 16px; font-size: 0.9rem; letter-spacing: 2px; }
+      .topbar-email { display: none; }
+      .orders-table, .stock-table { font-size: 0.78rem; }
+      .search-input { width: 100%; }
+    }
+
+    /* ── Edit-in-place ── */
+    .edit-cell-input {
+      width: 68px;
+      padding: 4px 6px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.83rem;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s;
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+    .edit-cell-input::-webkit-outer-spin-button,
+    .edit-cell-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .edit-cell-input:focus { border-color: var(--gold); }
+    .edit-cell-input.wide { width: 88px; }
+    .btn-remove-item {
+      width: 22px; height: 22px;
+      background: transparent;
+      border: 1px solid #333;
+      border-radius: 4px;
+      color: var(--text-muted);
+      font-size: 1rem;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s, color 0.15s;
+      padding: 0;
+    }
+    .btn-remove-item:hover { border-color: var(--danger); color: var(--danger); }
+    .add-item-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      align-items: center;
+    }
+    .product-search-input {
+      flex: 1;
+      padding: 7px 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.83rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .product-search-input:focus { border-color: var(--gold); }
+    .discount-totals {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+      padding: 12px 0 4px;
+      border-top: 1px solid var(--border);
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .discount-fields {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .discount-fields label {
+      font-size: 0.7rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .discount-input {
+      width: 80px;
+      padding: 5px 8px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.83rem;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .discount-input:focus { border-color: var(--gold); }
+    .discount-fields span { color: var(--text-muted); font-size: 0.78rem; }
+    .totals-display {
+      text-align: right;
+      font-size: 0.85rem;
+    }
+    .totals-display .subtotal-line {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      margin-bottom: 4px;
+    }
+    .totals-display .total-line {
+      color: var(--gold-light);
+      font-weight: 500;
+      font-size: 1rem;
+    }
+    .btn-ghost {
+      padding: 8px 18px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-ghost:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+    .btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
+    .order-edit-wrap {
+      padding: 16px 14px 16px 40px;
+      background: rgba(201,168,76,0.02);
+      animation: fadeIn 0.2s ease-out;
+    }
+    .order-edit-wrap table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .order-edit-wrap table th {
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 6px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .order-edit-wrap table td {
+      padding: 6px 10px;
+      font-weight: 300;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .order-edit-wrap .add-item-row { margin-top: 8px; }
+    .order-edit-wrap .discount-totals { margin-top: 10px; }
+    .order-edit-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="glow"></div>
+  <div class="glow-2"></div>
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="topbar-brand">NEXAS PRO</div>
+    <div class="topbar-right">
+      <span class="topbar-email" id="admin-email"></span>
+      <button class="btn-logout" onclick="logout()">SAIR</button>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="tab-preorders" onclick="switchTab('tab-preorders', this)">PRE-PEDIDOS</button>
+    <button class="tab-btn" data-tab="tab-orders" onclick="switchTab('tab-orders', this)">PEDIDOS</button>
+    <button class="tab-btn" data-tab="tab-stock" onclick="switchTab('tab-stock', this)">ESTOQUE</button>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- TAB 1: PRE-PEDIDOS -->
+    <div class="tab-panel active" id="tab-preorders">
+      <div id="preorders-loader" class="loader"><div class="loader-spinner"></div></div>
+      <div id="preorders-list"></div>
+    </div>
+
+    <!-- TAB 2: PEDIDOS -->
+    <div class="tab-panel" id="tab-orders">
+      <div class="filter-bar">
+        <label>Status:</label>
+        <select id="orders-status-filter" onchange="renderOrders()">
+          <option value="">Todos</option>
+          <option value="approved">Aprovado</option>
+          <option value="shipped">Enviado</option>
+          <option value="delivered">Entregue</option>
+        </select>
+      </div>
+      <div id="orders-loader" class="loader"><div class="loader-spinner"></div></div>
+      <div id="orders-container"></div>
+    </div>
+
+    <!-- TAB 3: ESTOQUE -->
+    <div class="tab-panel" id="tab-stock">
+      <div class="filter-bar">
+        <input type="text" class="search-input" id="stock-search" placeholder="Buscar produto..." oninput="renderStock()">
+      </div>
+      <div id="stock-loader" class="loader"><div class="loader-spinner"></div></div>
+      <div id="stock-container"></div>
+    </div>
+  </div>
+
+  <!-- Rejection Modal -->
+  <div class="modal-overlay hidden" id="reject-modal">
+    <div class="modal-card">
+      <div class="modal-title">REJEITAR PRE-PEDIDO</div>
+      <textarea class="modal-textarea" id="reject-reason" placeholder="Motivo da rejeicao..."></textarea>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeRejectModal()">CANCELAR</button>
+        <button class="btn-confirm-danger" id="btn-confirm-reject" onclick="confirmReject()">CONFIRMAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Products datalist for search -->
+  <datalist id="products-list"></datalist>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script>
+    /* ═══════════════════════════════════════
+       STATE
+    ═══════════════════════════════════════ */
+    let currentSession = null;
+    let preordersData = [];
+    let ordersData = [];
+    let stockData = [];
+    let productsData = [];
+    let expandedOrderId = null;
+    let rejectingPreorderId = null;
+    let poItems = {};          // { [preorderId]: [{_key,dbId,productId,name,qty,price}] }
+    let orderItemsState = {};  // { [orderId]: [{_key,dbId,productId,name,qty,price,origQty}] }
+
+    /* ═══════════════════════════════════════
+       INIT
+    ═══════════════════════════════════════ */
+    (async () => {
+      currentSession = await requireAuth();
+      if (!currentSession) return;
+      document.getElementById('admin-email').textContent = currentSession.user.email;
+      loadProducts();
+      loadPreorders();
+      loadOrders();
+      loadStock();
+    })();
+
+    /* ═══════════════════════════════════════
+       TABS
+    ═══════════════════════════════════════ */
+    function switchTab(tabId, btnEl) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btnEl.classList.add('active');
+      const panel = document.getElementById(tabId);
+      panel.classList.add('active');
+      // Re-trigger animation
+      panel.style.animation = 'none';
+      panel.offsetHeight;
+      panel.style.animation = '';
+    }
+
+    /* ═══════════════════════════════════════
+       TOAST
+    ═══════════════════════════════════════ */
+    function showToast(msg, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const el = document.createElement('div');
+      el.className = `toast toast-${type}`;
+      el.textContent = msg;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.animation = 'toastOut 0.3s ease-in forwards';
+        setTimeout(() => el.remove(), 300);
+      }, 3000);
+    }
+
+    /* ═══════════════════════════════════════
+       DATE FORMAT
+    ═══════════════════════════════════════ */
+    function fmtDate(d) {
+      return new Date(d).toLocaleDateString('pt-BR');
+    }
+    function fmtMoney(v) {
+      if (v == null) return '—';
+      return 'R$ ' + Number(v).toFixed(2).replace('.', ',');
+    }
+
+    /* ═══════════════════════════════════════
+       PRODUCTS (for search)
+    ═══════════════════════════════════════ */
+    async function loadProducts() {
+      try {
+        productsData = await supabaseRest('products?select=id,nome,categoria,estoque,cost,price&order=nome');
+        const dl = document.getElementById('products-list');
+        if (dl) dl.innerHTML = productsData.map(p => `<option value="${esc(p.nome)}">`).join('');
+      } catch(e) {
+        console.error('loadProducts failed', e);
+      }
+    }
+
+    /* ═══════════════════════════════════════
+       TAB 1: PRE-PEDIDOS
+    ═══════════════════════════════════════ */
+    async function loadPreorders() {
+      document.getElementById('preorders-loader').style.display = 'flex';
+      document.getElementById('preorders-list').innerHTML = '';
+      try {
+        preordersData = await supabaseRest(
+          'preorders?status=eq.preorder&select=*,customers(nome_fantasia,email,telefone),preorder_items(id,qty,price,product_id,products(id,nome,categoria,estoque,price,cost))&order=created_at.desc'
+        );
+        poItems = {}; // reset edit state on reload
+        renderPreorders();
+      } catch (e) {
+        showToast('Erro ao carregar pre-pedidos: ' + e.message, 'error');
+      }
+      document.getElementById('preorders-loader').style.display = 'none';
+    }
+
+    function renderPreorders() {
+      const container = document.getElementById('preorders-list');
+      if (!preordersData || preordersData.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div>Nenhum pre-pedido pendente</div>`;
+        return;
+      }
+      container.innerHTML = preordersData.map(po => {
+        const customer = po.customers || {};
+        const items = po.preorder_items || [];
+        // Init state only if not already set (preserve unsaved edits)
+        if (!poItems[po.id]) {
+          poItems[po.id] = items.map((it, i) => ({
+            _key: 'k' + i,
+            dbId: it.id,
+            productId: (it.products || {}).id,
+            name: (it.products || {}).nome || '—',
+            qty: it.qty,
+            price: it.price != null ? Number(it.price) : Number((it.products || {}).price || 0)
+          }));
+        }
+        const disc = Number(po.discount || 0);
+        const subtotal = poItems[po.id].reduce((s, x) => s + x.qty * x.price, 0);
+        const total = Math.max(0, subtotal - disc);
+        const discPct = subtotal > 0 && disc > 0 ? (disc / subtotal * 100).toFixed(1) : '';
+        return `
+          <div class="preorder-card" id="po-card-${po.id}">
+            <div class="po-header">
+              <div>
+                <div class="po-number">PRE-PEDIDO #${po.order_number_int || po.id}</div>
+                <div class="po-customer">
+                  <strong>${esc(customer.nome_fantasia || '—')}</strong>
+                  <span>${esc(customer.telefone || '')} &middot; ${esc(customer.email || '')}</span>
+                </div>
+              </div>
+              <div class="po-date">${fmtDate(po.created_at)}</div>
+            </div>
+            <table class="items-table">
+              <thead><tr><th>Produto</th><th>Qtd</th><th>Preco Unit.</th><th>Total</th><th></th></tr></thead>
+              <tbody id="po-tbody-${po.id}">
+                ${poItems[po.id].map(item => renderPoItemRow(po.id, item)).join('')}
+              </tbody>
+            </table>
+            <div class="add-item-row">
+              <input type="text" class="product-search-input" id="po-search-${po.id}" list="products-list" placeholder="Buscar produto para adicionar...">
+              <button class="btn btn-sm btn-ghost" onclick="addPoItem('${po.id}')">+ ADD</button>
+            </div>
+            <div class="discount-totals">
+              <div class="discount-fields">
+                <label>Desconto</label>
+                <input class="discount-input" type="text" id="po-disc-r-${po.id}" value="${disc > 0 ? disc.toFixed(2) : ''}" placeholder="0,00" oninput="poDiscFromR('${po.id}')">
+                <span>R$&nbsp;/</span>
+                <input class="discount-input" type="text" id="po-disc-p-${po.id}" value="${discPct}" placeholder="0,0" oninput="poDiscFromP('${po.id}')">
+                <span>%</span>
+              </div>
+              <div class="totals-display">
+                <div class="subtotal-line">Subtotal: <span id="po-subtotal-${po.id}">${fmtMoney(subtotal)}</span></div>
+                <div class="total-line">Total: <span id="po-total-${po.id}">${fmtMoney(total)}</span></div>
+              </div>
+            </div>
+            <div class="po-actions" id="po-actions-${po.id}">
+              <button class="btn btn-ghost" onclick="savePreorder('${po.id}')">SALVAR</button>
+              <button class="btn btn-gold" onclick="approvePreorder('${po.id}')">APROVAR</button>
+              <button class="btn btn-danger-outline" onclick="openRejectModal('${po.id}')">REJEITAR</button>
+              ${(po.customers || {}).telefone ? `<a class="btn-whatsapp" href="#" onclick="sendResume('preorder','${po.id}');return false;">ENVIAR RESUMO</a>` : ''}
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function renderPoItemRow(poId, item) {
+      return `<tr id="po-row-${poId}-${item._key}">
+        <td>${esc(item.name)}</td>
+        <td><input class="edit-cell-input" type="number" min="1" value="${item.qty}" id="po-qty-${poId}-${item._key}" oninput="calcPoTotal('${poId}')"></td>
+        <td><input class="edit-cell-input wide" type="text" value="${item.price.toFixed(2)}" id="po-price-${poId}-${item._key}" oninput="calcPoTotal('${poId}')"></td>
+        <td id="po-lt-${poId}-${item._key}">${fmtMoney(item.qty * item.price)}</td>
+        <td><button class="btn-remove-item" onclick="removePoItem('${poId}','${item._key}')">&#215;</button></td>
+      </tr>`;
+    }
+
+    function getPoSubtotal(poId) {
+      return (poItems[poId] || []).reduce((s, it) => {
+        const qty = parseInt(document.getElementById(`po-qty-${poId}-${it._key}`)?.value) || it.qty;
+        const price = parseFloat((document.getElementById(`po-price-${poId}-${it._key}`)?.value || '').replace(',', '.')) || it.price;
+        return s + qty * price;
+      }, 0);
+    }
+
+    function calcPoTotal(poId) {
+      const items = poItems[poId] || [];
+      let subtotal = 0;
+      for (const item of items) {
+        const qtyEl = document.getElementById(`po-qty-${poId}-${item._key}`);
+        const priceEl = document.getElementById(`po-price-${poId}-${item._key}`);
+        const ltEl = document.getElementById(`po-lt-${poId}-${item._key}`);
+        if (!qtyEl || !priceEl) continue;
+        const qty = parseInt(qtyEl.value) || 0;
+        const price = parseFloat(priceEl.value.replace(',', '.')) || 0;
+        const lt = qty * price;
+        subtotal += lt;
+        if (ltEl) ltEl.textContent = fmtMoney(lt);
+        item.qty = qty;
+        item.price = price;
+      }
+      const discREl = document.getElementById(`po-disc-r-${poId}`);
+      const discPEl = document.getElementById(`po-disc-p-${poId}`);
+      const discR = parseFloat((discREl?.value || '0').replace(',', '.')) || 0;
+      if (discPEl && document.activeElement !== discPEl) {
+        discPEl.value = subtotal > 0 && discR > 0 ? (discR / subtotal * 100).toFixed(1) : '';
+      }
+      const total = Math.max(0, subtotal - discR);
+      const subEl = document.getElementById(`po-subtotal-${poId}`);
+      const totEl = document.getElementById(`po-total-${poId}`);
+      if (subEl) subEl.textContent = fmtMoney(subtotal);
+      if (totEl) totEl.textContent = fmtMoney(total);
+    }
+
+    function poDiscFromR(poId) {
+      const subtotal = getPoSubtotal(poId);
+      const discREl = document.getElementById(`po-disc-r-${poId}`);
+      const discPEl = document.getElementById(`po-disc-p-${poId}`);
+      const discR = parseFloat((discREl?.value || '0').replace(',', '.')) || 0;
+      if (discPEl) discPEl.value = subtotal > 0 && discR > 0 ? (discR / subtotal * 100).toFixed(1) : '';
+      calcPoTotal(poId);
+    }
+
+    function poDiscFromP(poId) {
+      const subtotal = getPoSubtotal(poId);
+      const discPEl = document.getElementById(`po-disc-p-${poId}`);
+      const discREl = document.getElementById(`po-disc-r-${poId}`);
+      const discP = parseFloat((discPEl?.value || '0').replace(',', '.')) || 0;
+      if (discREl) discREl.value = subtotal > 0 && discP > 0 ? (discP / 100 * subtotal).toFixed(2) : '';
+      calcPoTotal(poId);
+    }
+
+    function removePoItem(poId, key) {
+      poItems[poId] = (poItems[poId] || []).filter(x => x._key !== key);
+      const row = document.getElementById(`po-row-${poId}-${key}`);
+      if (row) row.remove();
+      calcPoTotal(poId);
+    }
+
+    function addPoItem(poId) {
+      const searchEl = document.getElementById(`po-search-${poId}`);
+      const name = (searchEl?.value || '').trim();
+      if (!name) return;
+      const product = productsData.find(p => p.nome.toLowerCase() === name.toLowerCase());
+      if (!product) { showToast('Produto nao encontrado: ' + name, 'error'); return; }
+      const key = 'k' + Date.now();
+      const item = { _key: key, dbId: null, productId: product.id, name: product.nome, qty: 1, price: Number(product.price || 0) };
+      if (!poItems[poId]) poItems[poId] = [];
+      poItems[poId].push(item);
+      const tbody = document.getElementById(`po-tbody-${poId}`);
+      if (tbody) {
+        const tmp = document.createElement('tbody');
+        tmp.innerHTML = renderPoItemRow(poId, item);
+        tbody.appendChild(tmp.firstChild);
+      }
+      searchEl.value = '';
+      calcPoTotal(poId);
+    }
+
+    async function savePreorder(poId, silent = false) {
+      const items = poItems[poId] || [];
+      // Sync current DOM values to state
+      for (const item of items) {
+        const qtyEl = document.getElementById(`po-qty-${poId}-${item._key}`);
+        const priceEl = document.getElementById(`po-price-${poId}-${item._key}`);
+        if (qtyEl) item.qty = parseInt(qtyEl.value) || 1;
+        if (priceEl) item.price = parseFloat(priceEl.value.replace(',', '.')) || 0;
+      }
+      const discREl = document.getElementById(`po-disc-r-${poId}`);
+      const discount = parseFloat((discREl?.value || '0').replace(',', '.')) || 0;
+
+      const saveBtn = [...(document.querySelectorAll(`#po-actions-${poId} .btn`) || [])].find(b => b.textContent.trim() === 'SALVAR');
+      if (saveBtn) saveBtn.disabled = true;
+      try {
+        const origPo = preordersData.find(p => p.id === poId);
+        const origItems = origPo?.preorder_items || [];
+        const newIds = new Set(items.filter(x => x.dbId).map(x => x.dbId));
+        // DELETE removed items
+        for (const orig of origItems) {
+          if (orig.id && !newIds.has(orig.id)) {
+            await supabaseRest(`preorder_items?id=eq.${orig.id}`, { method: 'DELETE' });
+          }
+        }
+        // PATCH / POST items
+        for (const item of items) {
+          if (item.dbId) {
+            await supabaseRest(`preorder_items?id=eq.${item.dbId}`, {
+              method: 'PATCH',
+              body: { qty: item.qty, price: item.price }
+            });
+          } else {
+            const res = await supabaseRest('preorder_items', {
+              method: 'POST',
+              prefer: 'return=representation',
+              body: { preorder_id: poId, product_id: item.productId, qty: item.qty, price: item.price }
+            });
+            item.dbId = res[0]?.id;
+          }
+        }
+        // PATCH preorder discount
+        await supabaseRest(`preorders?id=eq.${poId}`, {
+          method: 'PATCH',
+          body: { discount, updated_at: new Date().toISOString() }
+        });
+        // Update local data
+        const po = preordersData.find(p => p.id === poId);
+        if (po) {
+          po.discount = discount;
+          po.preorder_items = items.map(it => ({
+            id: it.dbId, qty: it.qty, price: it.price,
+            products: { id: it.productId, nome: it.name, price: it.price }
+          }));
+        }
+        if (!silent) showToast('Pre-pedido salvo');
+      } catch(e) {
+        showToast('Erro ao salvar: ' + e.message, 'error');
+        throw e;
+      } finally {
+        if (saveBtn) saveBtn.disabled = false;
+      }
+    }
+
+    async function approvePreorder(preorderId) {
+      const actionsDiv = document.getElementById(`po-actions-${preorderId}`);
+      const btns = actionsDiv.querySelectorAll('button');
+      btns.forEach(b => b.disabled = true);
+
+      try {
+        // 0) Save any pending edits first
+        await savePreorder(preorderId, true);
+
+        // 1) Fresh data
+        const fresh = await supabaseRest(
+          `preorders?id=eq.${preorderId}&select=*,customers(nome_fantasia,email,telefone),preorder_items(qty,products(id,nome,categoria,estoque,price,cost))`
+        );
+        if (!fresh || !fresh[0]) throw new Error('Pre-pedido nao encontrado');
+        const po = fresh[0];
+        const items = po.preorder_items || [];
+        const customer = po.customers || {};
+
+        // 2) Check stock
+        for (const it of items) {
+          const prod = it.products || {};
+          if ((prod.estoque || 0) < it.qty) {
+            throw new Error(`Estoque insuficiente: ${prod.nome} (disponivel: ${prod.estoque}, solicitado: ${it.qty})`);
+          }
+        }
+
+        // 3) Get next order number
+        const nextNum = await supabaseRpc('get_next_order_number');
+
+        // 4) Create order
+        const newOrders = await supabaseRest('orders', {
+          method: 'POST',
+          body: {
+            customer_id: po.customer_id,
+            status: 'approved',
+            order_number_int: nextNum
+          },
+          prefer: 'return=representation'
+        });
+        const newOrder = newOrders[0];
+
+        // 5) Create order items
+        for (const it of items) {
+          const prod = it.products || {};
+          await supabaseRest('order_items', {
+            method: 'POST',
+            body: {
+              order_id: newOrder.id,
+              product_id: prod.id,
+              qty: it.qty,
+              cost: prod.cost,
+              price: prod.price
+            }
+          });
+        }
+
+        // 6) Decrement stock
+        for (const it of items) {
+          const prod = it.products || {};
+          const current = await supabaseRest(`products?id=eq.${prod.id}&select=estoque`);
+          const curEstoque = current[0].estoque;
+          await supabaseRest(`products?id=eq.${prod.id}`, {
+            method: 'PATCH',
+            body: { estoque: curEstoque - it.qty }
+          });
+        }
+
+        // 7) Update preorder status
+        await supabaseRest(`preorders?id=eq.${preorderId}`, {
+          method: 'PATCH',
+          body: { status: 'approved', updated_at: new Date().toISOString() }
+        });
+
+        // 8) Toast
+        showToast(`Pedido #${nextNum} aprovado com sucesso!`);
+
+        // 9) WhatsApp button
+        const phone = (customer.telefone || '').replace(/\D/g, '');
+        const itemsList = items.map(it => `• ${it.qty}x ${(it.products || {}).nome || '?'}`).join('\n');
+        const waMsg = encodeURIComponent(
+          `Olá ${customer.nome_fantasia || ''}! ✅\n\nSeu pedido #${nextNum} foi aprovado!\n\nItens:\n${itemsList}\n\nEquipe Nexas Pro`
+        );
+        actionsDiv.innerHTML = `
+          <span style="color:var(--green);font-weight:500;">Aprovado!</span>
+          ${phone ? `<a class="btn-whatsapp" href="https://wa.me/55${phone}?text=${waMsg}" target="_blank">WHATSAPP</a>` : ''}
+        `;
+
+        // 10) Refresh data
+        loadPreorders();
+        loadOrders();
+        loadStock();
+
+      } catch (e) {
+        showToast(e.message, 'error');
+        btns.forEach(b => b.disabled = false);
+      }
+    }
+
+    /* ── Reject Modal ── */
+    function openRejectModal(preorderId) {
+      rejectingPreorderId = preorderId;
+      document.getElementById('reject-reason').value = '';
+      document.getElementById('reject-modal').classList.remove('hidden');
+    }
+    function closeRejectModal() {
+      rejectingPreorderId = null;
+      document.getElementById('reject-modal').classList.add('hidden');
+    }
+    async function confirmReject() {
+      const reason = document.getElementById('reject-reason').value.trim();
+      if (!reason) {
+        showToast('Informe o motivo da rejeicao', 'error');
+        return;
+      }
+      const btn = document.getElementById('btn-confirm-reject');
+      btn.disabled = true;
+      try {
+        await supabaseRest(`preorders?id=eq.${rejectingPreorderId}`, {
+          method: 'PATCH',
+          body: {
+            status: 'rejected',
+            rejection_reason: reason,
+            updated_at: new Date().toISOString()
+          }
+        });
+        showToast('Pre-pedido rejeitado');
+        closeRejectModal();
+        loadPreorders();
+      } catch (e) {
+        showToast('Erro: ' + e.message, 'error');
+      }
+      btn.disabled = false;
+    }
+
+    /* ═══════════════════════════════════════
+       TAB 2: PEDIDOS
+    ═══════════════════════════════════════ */
+    async function loadOrders() {
+      document.getElementById('orders-loader').style.display = 'flex';
+      document.getElementById('orders-container').innerHTML = '';
+      try {
+        ordersData = await supabaseRest(
+          'orders?select=*,customers(nome_fantasia,email,telefone),order_items(id,qty,cost,price,product_id,products(id,nome,estoque))&order=created_at.desc'
+        );
+        orderItemsState = {}; // reset edit state on reload
+        renderOrders();
+      } catch (e) {
+        showToast('Erro ao carregar pedidos: ' + e.message, 'error');
+      }
+      document.getElementById('orders-loader').style.display = 'none';
+    }
+
+    function renderOrders() {
+      const container = document.getElementById('orders-container');
+      const filter = document.getElementById('orders-status-filter').value;
+      const filtered = filter ? ordersData.filter(o => o.status === filter) : ordersData;
+
+      if (!filtered || filtered.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">📦</div>Nenhum pedido encontrado</div>`;
+        return;
+      }
+
+      const statusLabel = { approved: 'Aprovado', shipped: 'Enviado', delivered: 'Entregue' };
+      const statusBadge = { approved: 'badge-approved', shipped: 'badge-shipped', delivered: 'badge-delivered' };
+      const paymentOptions = ['', 'PIX', 'Boleto', 'Cartão', 'Transferência'];
+
+      let html = `
+        <table class="orders-table">
+          <thead><tr>
+            <th>#</th><th>Data</th><th>Cliente</th><th>Status</th><th>Pagamento</th><th>NF</th><th>Acoes</th>
+          </tr></thead>
+          <tbody>`;
+
+      for (const o of filtered) {
+        const c = o.customers || {};
+        const isExpanded = expandedOrderId === o.id;
+        html += `
+          <tr onclick="toggleOrderDetail('${o.id}', event)">
+            <td style="color:var(--gold);font-weight:500;">${o.order_number_int || '—'}</td>
+            <td>${fmtDate(o.created_at)}</td>
+            <td>${esc(c.nome_fantasia || '—')}</td>
+            <td><span class="badge ${statusBadge[o.status] || ''}">${statusLabel[o.status] || o.status}</span></td>
+            <td onclick="event.stopPropagation()">
+              <select class="inline-select" onchange="updateOrderField('${o.id}','payment_method',this.value)">
+                ${paymentOptions.map(p =>
+                  `<option value="${p}" ${o.payment_method === p ? 'selected' : ''}>${p || '—'}</option>`
+                ).join('')}
+              </select>
+            </td>
+            <td onclick="event.stopPropagation()">
+              <input class="inline-input" type="number" value="${o.invoice || ''}" placeholder="—"
+                onblur="updateOrderField('${o.id}','invoice',this.value ? parseInt(this.value) : null)">
+            </td>
+            <td onclick="event.stopPropagation()">
+              ${o.status === 'approved' ? `<button class="btn btn-sm btn-blue" onclick="changeOrderStatus('${o.id}','shipped')">ENVIADO</button>` : ''}
+              ${o.status === 'shipped' ? `<button class="btn btn-sm btn-green" onclick="changeOrderStatus('${o.id}','delivered')">ENTREGUE</button>` : ''}
+            </td>
+          </tr>`;
+        if (isExpanded) {
+          const rawItems = o.order_items || [];
+          // Init state only if not already set
+          if (!orderItemsState[o.id]) {
+            orderItemsState[o.id] = rawItems.map((it, i) => ({
+              _key: 'k' + i,
+              dbId: it.id,
+              productId: it.product_id || (it.products || {}).id,
+              name: (it.products || {}).nome || '—',
+              qty: it.qty,
+              origQty: it.qty,
+              price: it.price != null ? Number(it.price) : 0
+            }));
+          }
+          const st = orderItemsState[o.id];
+          const disc = Number(o.discount || 0);
+          const subtotal = st.reduce((s, x) => s + x.qty * x.price, 0);
+          const total = Math.max(0, subtotal - disc);
+          const discPct = subtotal > 0 && disc > 0 ? (disc / subtotal * 100).toFixed(1) : '';
+          html += `
+            <tr class="order-detail-row">
+              <td colspan="7">
+                <div class="order-edit-wrap">
+                  <table>
+                    <thead><tr><th>Produto</th><th>Qtd</th><th>Preco Unit.</th><th>Total</th><th></th></tr></thead>
+                    <tbody id="ord-tbody-${o.id}">
+                      ${st.map(item => renderOrderItemRow(o.id, item)).join('')}
+                    </tbody>
+                  </table>
+                  <div class="add-item-row">
+                    <input type="text" class="product-search-input" id="ord-search-${o.id}" list="products-list" placeholder="Buscar produto para adicionar...">
+                    <button class="btn btn-sm btn-ghost" onclick="addOrderItem('${o.id}')">+ ADD</button>
+                  </div>
+                  <div class="discount-totals">
+                    <div class="discount-fields">
+                      <label>Desconto</label>
+                      <input class="discount-input" type="text" id="ord-disc-r-${o.id}" value="${disc > 0 ? disc.toFixed(2) : ''}" placeholder="0,00" oninput="orderDiscFromR('${o.id}')">
+                      <span>R$&nbsp;/</span>
+                      <input class="discount-input" type="text" id="ord-disc-p-${o.id}" value="${discPct}" placeholder="0,0" oninput="orderDiscFromP('${o.id}')">
+                      <span>%</span>
+                    </div>
+                    <div class="totals-display">
+                      <div class="subtotal-line">Subtotal: <span id="ord-subtotal-${o.id}">${fmtMoney(subtotal)}</span></div>
+                      <div class="total-line">Total: <span id="ord-total-${o.id}">${fmtMoney(total)}</span></div>
+                    </div>
+                  </div>
+                  <div class="order-edit-actions">
+                    <button class="btn btn-ghost" id="ord-save-btn-${o.id}" onclick="saveOrderItems('${o.id}')">SALVAR ALTERACOES</button>
+                    ${(o.customers || {}).telefone ? `<a class="btn-whatsapp" href="#" onclick="sendResume('order','${o.id}');return false;">ENVIAR RESUMO</a>` : ''}
+                  </div>
+                </div>
+              </td>
+            </tr>`;
+        }
+      }
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    function toggleOrderDetail(orderId, e) {
+      // Sync current DOM edits to state before re-rendering
+      if (expandedOrderId && orderItemsState[expandedOrderId]) {
+        syncOrderStateFromDom(expandedOrderId);
+      }
+      expandedOrderId = expandedOrderId === orderId ? null : orderId;
+      renderOrders();
+    }
+
+    function syncOrderStateFromDom(ordId) {
+      const items = orderItemsState[ordId] || [];
+      for (const item of items) {
+        const qtyEl = document.getElementById(`ord-qty-${ordId}-${item._key}`);
+        const priceEl = document.getElementById(`ord-price-${ordId}-${item._key}`);
+        if (qtyEl) item.qty = parseInt(qtyEl.value) || 1;
+        if (priceEl) item.price = parseFloat(priceEl.value.replace(',', '.')) || 0;
+      }
+      const discREl = document.getElementById(`ord-disc-r-${ordId}`);
+      const o = ordersData.find(x => x.id === ordId);
+      if (o && discREl) o.discount = parseFloat(discREl.value.replace(',', '.')) || 0;
+    }
+
+    async function updateOrderField(orderId, field, value) {
+      try {
+        const body = {};
+        body[field] = value;
+        await supabaseRest(`orders?id=eq.${orderId}`, {
+          method: 'PATCH',
+          body
+        });
+        // Update local data
+        const o = ordersData.find(x => x.id === orderId);
+        if (o) o[field] = value;
+        showToast('Salvo');
+      } catch (e) {
+        showToast('Erro: ' + e.message, 'error');
+      }
+    }
+
+    async function changeOrderStatus(orderId, newStatus) {
+      try {
+        await supabaseRest(`orders?id=eq.${orderId}`, {
+          method: 'PATCH',
+          body: { status: newStatus, updated_at: new Date().toISOString() }
+        });
+        showToast(`Status atualizado: ${newStatus}`);
+        loadOrders();
+      } catch (e) {
+        showToast('Erro: ' + e.message, 'error');
+      }
+    }
+
+    function renderOrderItemRow(ordId, item) {
+      return `<tr id="ord-row-${ordId}-${item._key}">
+        <td>${esc(item.name)}</td>
+        <td><input class="edit-cell-input" type="number" min="1" value="${item.qty}" id="ord-qty-${ordId}-${item._key}" oninput="calcOrderTotal('${ordId}')"></td>
+        <td><input class="edit-cell-input wide" type="text" value="${item.price.toFixed(2)}" id="ord-price-${ordId}-${item._key}" oninput="calcOrderTotal('${ordId}')"></td>
+        <td id="ord-lt-${ordId}-${item._key}">${fmtMoney(item.qty * item.price)}</td>
+        <td><button class="btn-remove-item" onclick="removeOrderItem('${ordId}','${item._key}')">&#215;</button></td>
+      </tr>`;
+    }
+
+    function getOrderSubtotal(ordId) {
+      return (orderItemsState[ordId] || []).reduce((s, it) => {
+        const qty = parseInt(document.getElementById(`ord-qty-${ordId}-${it._key}`)?.value) || it.qty;
+        const price = parseFloat((document.getElementById(`ord-price-${ordId}-${it._key}`)?.value || '').replace(',', '.')) || it.price;
+        return s + qty * price;
+      }, 0);
+    }
+
+    function calcOrderTotal(ordId) {
+      const items = orderItemsState[ordId] || [];
+      let subtotal = 0;
+      for (const item of items) {
+        const qtyEl = document.getElementById(`ord-qty-${ordId}-${item._key}`);
+        const priceEl = document.getElementById(`ord-price-${ordId}-${item._key}`);
+        const ltEl = document.getElementById(`ord-lt-${ordId}-${item._key}`);
+        if (!qtyEl || !priceEl) continue;
+        const qty = parseInt(qtyEl.value) || 0;
+        const price = parseFloat(priceEl.value.replace(',', '.')) || 0;
+        const lt = qty * price;
+        subtotal += lt;
+        if (ltEl) ltEl.textContent = fmtMoney(lt);
+        item.qty = qty;
+        item.price = price;
+      }
+      const discREl = document.getElementById(`ord-disc-r-${ordId}`);
+      const discPEl = document.getElementById(`ord-disc-p-${ordId}`);
+      const discR = parseFloat((discREl?.value || '0').replace(',', '.')) || 0;
+      if (discPEl && document.activeElement !== discPEl) {
+        discPEl.value = subtotal > 0 && discR > 0 ? (discR / subtotal * 100).toFixed(1) : '';
+      }
+      const total = Math.max(0, subtotal - discR);
+      const subEl = document.getElementById(`ord-subtotal-${ordId}`);
+      const totEl = document.getElementById(`ord-total-${ordId}`);
+      if (subEl) subEl.textContent = fmtMoney(subtotal);
+      if (totEl) totEl.textContent = fmtMoney(total);
+    }
+
+    function orderDiscFromR(ordId) {
+      const subtotal = getOrderSubtotal(ordId);
+      const discREl = document.getElementById(`ord-disc-r-${ordId}`);
+      const discPEl = document.getElementById(`ord-disc-p-${ordId}`);
+      const discR = parseFloat((discREl?.value || '0').replace(',', '.')) || 0;
+      if (discPEl) discPEl.value = subtotal > 0 && discR > 0 ? (discR / subtotal * 100).toFixed(1) : '';
+      calcOrderTotal(ordId);
+    }
+
+    function orderDiscFromP(ordId) {
+      const subtotal = getOrderSubtotal(ordId);
+      const discPEl = document.getElementById(`ord-disc-p-${ordId}`);
+      const discREl = document.getElementById(`ord-disc-r-${ordId}`);
+      const discP = parseFloat((discPEl?.value || '0').replace(',', '.')) || 0;
+      if (discREl) discREl.value = subtotal > 0 && discP > 0 ? (discP / 100 * subtotal).toFixed(2) : '';
+      calcOrderTotal(ordId);
+    }
+
+    function removeOrderItem(ordId, key) {
+      orderItemsState[ordId] = (orderItemsState[ordId] || []).filter(x => x._key !== key);
+      const row = document.getElementById(`ord-row-${ordId}-${key}`);
+      if (row) row.remove();
+      calcOrderTotal(ordId);
+    }
+
+    function addOrderItem(ordId) {
+      const searchEl = document.getElementById(`ord-search-${ordId}`);
+      const name = (searchEl?.value || '').trim();
+      if (!name) return;
+      const product = productsData.find(p => p.nome.toLowerCase() === name.toLowerCase());
+      if (!product) { showToast('Produto nao encontrado: ' + name, 'error'); return; }
+      const key = 'k' + Date.now();
+      const item = { _key: key, dbId: null, productId: product.id, name: product.nome, qty: 1, origQty: 0, price: Number(product.price || 0) };
+      if (!orderItemsState[ordId]) orderItemsState[ordId] = [];
+      orderItemsState[ordId].push(item);
+      const tbody = document.getElementById(`ord-tbody-${ordId}`);
+      if (tbody) {
+        const tmp = document.createElement('tbody');
+        tmp.innerHTML = renderOrderItemRow(ordId, item);
+        tbody.appendChild(tmp.firstChild);
+      }
+      searchEl.value = '';
+      calcOrderTotal(ordId);
+    }
+
+    async function saveOrderItems(ordId) {
+      const items = orderItemsState[ordId] || [];
+      // Sync DOM to state
+      for (const item of items) {
+        const qtyEl = document.getElementById(`ord-qty-${ordId}-${item._key}`);
+        const priceEl = document.getElementById(`ord-price-${ordId}-${item._key}`);
+        if (qtyEl) item.qty = parseInt(qtyEl.value) || 1;
+        if (priceEl) item.price = parseFloat(priceEl.value.replace(',', '.')) || 0;
+      }
+      const discREl = document.getElementById(`ord-disc-r-${ordId}`);
+      const discount = parseFloat((discREl?.value || '0').replace(',', '.')) || 0;
+
+      const saveBtn = document.getElementById(`ord-save-btn-${ordId}`);
+      if (saveBtn) saveBtn.disabled = true;
+      try {
+        const origOrder = ordersData.find(x => x.id === ordId);
+        const origItems = origOrder?.order_items || [];
+        const newIds = new Set(items.filter(x => x.dbId).map(x => x.dbId));
+
+        // DELETE removed items → restore stock
+        for (const orig of origItems) {
+          if (orig.id && !newIds.has(orig.id)) {
+            await supabaseRest(`order_items?id=eq.${orig.id}`, { method: 'DELETE' });
+            // Restore stock
+            const prodId = orig.product_id || (orig.products || {}).id;
+            if (prodId) {
+              const cur = await supabaseRest(`products?id=eq.${prodId}&select=estoque`);
+              if (cur && cur[0]) {
+                await supabaseRest(`products?id=eq.${prodId}`, {
+                  method: 'PATCH',
+                  body: { estoque: (cur[0].estoque || 0) + orig.qty }
+                });
+              }
+            }
+          }
+        }
+
+        // PATCH existing items — also adjust stock by qty delta
+        for (const item of items) {
+          if (item.dbId) {
+            const origItem = origItems.find(x => x.id === item.dbId);
+            const origQty = origItem ? origItem.qty : item.origQty;
+            const delta = item.qty - origQty; // positive = needs more stock; negative = returns stock
+            await supabaseRest(`order_items?id=eq.${item.dbId}`, {
+              method: 'PATCH',
+              body: { qty: item.qty, price: item.price }
+            });
+            if (delta !== 0 && item.productId) {
+              const cur = await supabaseRest(`products?id=eq.${item.productId}&select=estoque`);
+              if (cur && cur[0]) {
+                await supabaseRest(`products?id=eq.${item.productId}`, {
+                  method: 'PATCH',
+                  body: { estoque: Math.max(0, (cur[0].estoque || 0) - delta) }
+                });
+              }
+            }
+          } else {
+            // POST new item — decrement stock
+            const res = await supabaseRest('order_items', {
+              method: 'POST',
+              prefer: 'return=representation',
+              body: { order_id: ordId, product_id: item.productId, qty: item.qty, price: item.price, cost: 0 }
+            });
+            item.dbId = res[0]?.id;
+            if (item.productId) {
+              const cur = await supabaseRest(`products?id=eq.${item.productId}&select=estoque`);
+              if (cur && cur[0]) {
+                await supabaseRest(`products?id=eq.${item.productId}`, {
+                  method: 'PATCH',
+                  body: { estoque: Math.max(0, (cur[0].estoque || 0) - item.qty) }
+                });
+              }
+            }
+          }
+        }
+
+        // PATCH order discount
+        await supabaseRest(`orders?id=eq.${ordId}`, {
+          method: 'PATCH',
+          body: { discount, updated_at: new Date().toISOString() }
+        });
+
+        // Update local data
+        if (origOrder) {
+          origOrder.discount = discount;
+          origOrder.order_items = items.map(it => ({
+            id: it.dbId, qty: it.qty, price: it.price, product_id: it.productId,
+            products: { id: it.productId, nome: it.name }
+          }));
+          // Sync origQty so next save computes delta correctly
+          for (const item of items) item.origQty = item.qty;
+        }
+
+        showToast('Pedido salvo');
+        loadStock(); // refresh stock display
+      } catch(e) {
+        showToast('Erro ao salvar: ' + e.message, 'error');
+      } finally {
+        if (saveBtn) saveBtn.disabled = false;
+      }
+    }
+
+    /* ═══════════════════════════════════════
+       TAB 3: ESTOQUE
+    ═══════════════════════════════════════ */
+    async function loadStock() {
+      document.getElementById('stock-loader').style.display = 'flex';
+      document.getElementById('stock-container').innerHTML = '';
+      try {
+        stockData = await supabaseRest('products?select=id,nome,categoria,estoque,cost,price,diameter,taper&order=id');
+        renderStock();
+      } catch (e) {
+        showToast('Erro ao carregar estoque: ' + e.message, 'error');
+      }
+      document.getElementById('stock-loader').style.display = 'none';
+    }
+
+    function getCartridgeSuffix(nome) {
+      const n = (nome || '').trim().toUpperCase();
+      if (n.endsWith('RL')) return 'RL';
+      if (n.endsWith('RS')) return 'RS';
+      if (n.endsWith('RM')) return 'RM';
+      if (n.endsWith('M1')) return 'M1';
+      return 'OUTROS';
+    }
+
+    function renderStock() {
+      const container = document.getElementById('stock-container');
+      const search = (document.getElementById('stock-search').value || '').toLowerCase();
+      let data = stockData;
+      if (search) {
+        data = data.filter(p => (p.nome || '').toLowerCase().includes(search));
+      }
+
+      const machines = data.filter(p => p.categoria === 'Máquina');
+      const cartridges = data.filter(p => p.categoria !== 'Máquina');
+
+      // Group cartridges by suffix
+      const groups = {};
+      for (const c of cartridges) {
+        const suffix = getCartridgeSuffix(c.nome);
+        if (!groups[suffix]) groups[suffix] = [];
+        groups[suffix].push(c);
+      }
+
+      let html = '';
+
+      // Machines
+      if (machines.length > 0) {
+        html += `<div class="stock-group-header">MAQUINAS</div>`;
+        html += buildStockTable(machines);
+      }
+
+      // Cartridge groups
+      const suffixOrder = ['RL', 'RS', 'RM', 'M1', 'OUTROS'];
+      for (const suffix of suffixOrder) {
+        if (groups[suffix] && groups[suffix].length > 0) {
+          html += `<div class="stock-group-header">CARTUCHOS ${suffix}</div>`;
+          html += buildStockTable(groups[suffix]);
+        }
+      }
+
+      if (!html) {
+        html = `<div class="empty-state"><div class="empty-icon">📦</div>Nenhum produto encontrado</div>`;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function buildStockTable(products) {
+      let html = `
+        <table class="stock-table">
+          <thead><tr>
+            <th>Nome</th><th>Diametro</th><th>Taper</th><th>Estoque</th><th>Custo (R$)</th><th>Preco (R$)</th>
+          </tr></thead>
+          <tbody>`;
+      for (const p of products) {
+        const dotClass = p.estoque >= 100 ? 'green' : p.estoque >= 50 ? 'yellow' : 'red';
+        const esgotado = p.estoque <= 5;
+        html += `
+          <tr>
+            <td style="font-weight:400;">${esc(p.nome)}</td>
+            <td>${p.diameter != null ? p.diameter : '—'}</td>
+            <td>${p.taper != null ? esc(String(p.taper)) : '—'}</td>
+            <td>
+              <div class="stock-cell">
+                <span class="stock-dot ${dotClass}"></span>
+                <div class="stock-controls">
+                  <button class="stock-btn" onclick="adjustStock(${p.id}, -1)">−</button>
+                  <input class="stock-val" type="number" value="${p.estoque}" id="stock-input-${p.id}"
+                    onblur="setStock(${p.id}, this.value)"
+                    onkeydown="if(event.key==='Enter'){this.blur()}">
+                  <button class="stock-btn" onclick="adjustStock(${p.id}, 1)">+</button>
+                </div>
+                ${esgotado ? '<span class="badge-esgotado">ESGOTADO</span>' : ''}
+                <span class="save-check" id="check-stock-${p.id}">&#10003;</span>
+              </div>
+            </td>
+            <td>
+              <input class="editable-cell" type="text" value="${p.cost != null ? Number(p.cost).toFixed(2) : ''}"
+                onclick="this.select()"
+                onblur="updateProduct(${p.id}, 'cost', this.value, 'check-cost-${p.id}')">
+              <span class="save-check" id="check-cost-${p.id}">&#10003;</span>
+            </td>
+            <td>
+              <input class="editable-cell" type="text" value="${p.price != null ? Number(p.price).toFixed(2) : ''}"
+                onclick="this.select()"
+                onblur="updateProduct(${p.id}, 'price', this.value, 'check-price-${p.id}')">
+              <span class="save-check" id="check-price-${p.id}">&#10003;</span>
+            </td>
+          </tr>`;
+      }
+      html += '</tbody></table>';
+      return html;
+    }
+
+    async function adjustStock(productId, delta) {
+      const input = document.getElementById(`stock-input-${productId}`);
+      const current = parseInt(input.value) || 0;
+      const newVal = Math.max(0, current + delta);
+      input.value = newVal;
+      await patchProduct(productId, { estoque: newVal }, `check-stock-${productId}`);
+      // Update local
+      const p = stockData.find(x => x.id === productId);
+      if (p) p.estoque = newVal;
+    }
+
+    async function setStock(productId, value) {
+      const newVal = Math.max(0, parseInt(value) || 0);
+      const input = document.getElementById(`stock-input-${productId}`);
+      input.value = newVal;
+      await patchProduct(productId, { estoque: newVal }, `check-stock-${productId}`);
+      const p = stockData.find(x => x.id === productId);
+      if (p) p.estoque = newVal;
+    }
+
+    async function updateProduct(productId, field, value, checkId) {
+      const num = parseFloat(value);
+      if (isNaN(num)) return;
+      const body = {};
+      body[field] = num;
+      await patchProduct(productId, body, checkId);
+      const p = stockData.find(x => x.id === productId);
+      if (p) p[field] = num;
+    }
+
+    async function patchProduct(productId, body, checkId) {
+      try {
+        await supabaseRest(`products?id=eq.${productId}`, {
+          method: 'PATCH',
+          body
+        });
+        if (checkId) flashCheck(checkId);
+      } catch (e) {
+        showToast('Erro ao salvar: ' + e.message, 'error');
+      }
+    }
+
+    function flashCheck(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 1500);
+    }
+
+    /* ═══════════════════════════════════════
+       ENVIAR RESUMO (WhatsApp)
+    ═══════════════════════════════════════ */
+    function sendResume(type, id) {
+      let phone, name, num, items, disc, paymentMethod;
+
+      if (type === 'preorder') {
+        const po = preordersData.find(p => p.id === id);
+        if (!po) return;
+        const customer = po.customers || {};
+        phone = (customer.telefone || '').replace(/\D/g, '');
+        name = customer.nome_fantasia || '';
+        num = po.order_number_int || po.id;
+
+        // Use current DOM state if available, else stored state
+        const stateItems = poItems[id] || [];
+        items = stateItems.map(it => {
+          const qty = parseInt(document.getElementById(`po-qty-${id}-${it._key}`)?.value) || it.qty;
+          const price = parseFloat((document.getElementById(`po-price-${id}-${it._key}`)?.value || '').replace(',', '.')) || it.price;
+          return { name: it.name, qty, price };
+        });
+        const discEl = document.getElementById(`po-disc-r-${id}`);
+        disc = parseFloat((discEl?.value || '0').replace(',', '.')) || 0;
+        paymentMethod = null;
+
+      } else {
+        const o = ordersData.find(x => x.id === id);
+        if (!o) return;
+        const customer = o.customers || {};
+        phone = (customer.telefone || '').replace(/\D/g, '');
+        name = customer.nome_fantasia || '';
+        num = o.order_number_int || o.id;
+        paymentMethod = o.payment_method;
+
+        const stateItems = orderItemsState[id] || [];
+        if (stateItems.length > 0) {
+          items = stateItems.map(it => {
+            const qty = parseInt(document.getElementById(`ord-qty-${id}-${it._key}`)?.value) || it.qty;
+            const price = parseFloat((document.getElementById(`ord-price-${id}-${it._key}`)?.value || '').replace(',', '.')) || it.price;
+            return { name: it.name, qty, price };
+          });
+          const discEl = document.getElementById(`ord-disc-r-${id}`);
+          disc = parseFloat((discEl?.value || '0').replace(',', '.')) || Number(o.discount || 0);
+        } else {
+          // Order not expanded — use stored data
+          items = (o.order_items || []).map(it => ({
+            name: (it.products || {}).nome || '—',
+            qty: it.qty,
+            price: Number(it.price || 0)
+          }));
+          disc = Number(o.discount || 0);
+        }
+      }
+
+      if (!phone) { showToast('Cliente sem telefone cadastrado', 'error'); return; }
+
+      const subtotal = items.reduce((s, it) => s + it.qty * it.price, 0);
+      const total = Math.max(0, subtotal - disc);
+
+      const lines = items.map(it => {
+        const lt = it.qty * it.price;
+        return `  • ${it.qty}x ${it.name} — ${fmtMoney(it.price)} = ${fmtMoney(lt)}`;
+      }).join('\n');
+
+      let msg = `Olá ${name}! Segue o resumo do seu pedido *#${num}*:\n\n${lines}\n\nSubtotal: ${fmtMoney(subtotal)}`;
+      if (disc > 0) msg += `\nDesconto: -${fmtMoney(disc)}`;
+      msg += `\n*Total: ${fmtMoney(total)}*`;
+      if (paymentMethod) msg += `\nPagamento: ${paymentMethod}`;
+      msg += '\n\nEquipe Nexas Pro';
+
+      window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    /* ═══════════════════════════════════════
+       UTIL
+    ═══════════════════════════════════════ */
+    function esc(str) {
+      const d = document.createElement('div');
+      d.textContent = str || '';
+      return d.innerHTML;
+    }
+  </script>
+</body>
+</html>

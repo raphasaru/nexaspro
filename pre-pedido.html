@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pré-Pedido | Nexas Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <style>
+    :root {
+      --bg-deep: #f5f5f0;
+      --bg-card: #ffffff;
+      --bg-input: #f9f9f7;
+      --gold: #6b21a8;
+      --gold-light: #f3e8ff;
+      --gold-dim: rgba(107, 33, 168, 0.1);
+      --text: #1a1a1a;
+      --text-muted: #888;
+      --border: #e0ddd5;
+      --red: #c0392b;
+      --green: #27ae60;
+      --yellow: #e67e22;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-body: 'Outfit', sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-deep);
+      color: var(--text);
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* Header */
+    .page-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-header .logo {
+      max-height: 80px;
+      width: auto;
+      margin-bottom: 1rem;
+    }
+    .page-header h1 {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      letter-spacing: 3px;
+      color: var(--gold);
+    }
+    .page-header p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 0.3rem;
+    }
+
+    /* Section titles */
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      letter-spacing: 2px;
+      color: var(--gold);
+      margin: 2.5rem 0 1rem;
+      padding-left: 0.5rem;
+      border-left: 3px solid var(--gold);
+    }
+
+    /* Tables */
+    .product-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .product-table thead {
+      background: #6b21a8;
+      border-bottom: 2px solid #6b21a8;
+    }
+    .product-table thead th {
+      padding: 0.8rem 1rem;
+      text-align: left;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      color: #ffffff;
+      text-transform: uppercase;
+      font-weight: 400;
+    }
+    .product-table tbody td {
+      padding: 0.6rem 1rem;
+      font-size: 0.85rem;
+      color: var(--text);
+      vertical-align: middle;
+    }
+    .product-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .product-table tbody tr:hover {
+      background: rgba(107, 33, 168, 0.04);
+    }
+    .product-table tbody tr.row-even {
+      background: var(--bg-card);
+    }
+    .product-table tbody tr.row-odd {
+      background: #faf9f6;
+    }
+    .product-table tbody tr.row-even:hover,
+    .product-table tbody tr.row-odd:hover {
+      background: rgba(107, 33, 168, 0.05);
+    }
+
+    /* Subcategory header row */
+    .subcat-header td {
+      background: var(--gold-dim) !important;
+      color: var(--gold) !important;
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      padding: 0.6rem 1rem !important;
+      border-bottom: 1px solid rgba(107, 33, 168, 0.2) !important;
+    }
+    .subcat-header:hover {
+      background: var(--gold-dim) !important;
+    }
+
+    /* Stock bar */
+    .stock-bar-bg {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #e0ddd5;
+      margin-top: 2px;
+    }
+    .stock-bar-fill {
+      height: 6px;
+      border-radius: 3px;
+    }
+    .stock-green { background: var(--green); }
+    .stock-yellow { background: var(--yellow); }
+    .stock-red { background: var(--red); }
+
+    /* Quantity input */
+    .qty-input {
+      width: 70px;
+      padding: 0.4rem 0.5rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      text-align: center;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+    .qty-input::-webkit-outer-spin-button,
+    .qty-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .qty-input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(107, 33, 168, 0.2);
+    }
+
+    .esgotado {
+      color: var(--red);
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    /* Product thumbnail */
+    .product-thumb {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      border-radius: 4px;
+      background: #f0ede6;
+    }
+
+    /* Customer form */
+    .customer-section {
+      margin-top: 3rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .customer-section h2 {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      letter-spacing: 2px;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    @media (min-width: 600px) {
+      .form-grid { grid-template-columns: 1fr 1fr; }
+      .form-grid .full-width { grid-column: 1 / -1; }
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 0.3rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .form-group label .req {
+      color: var(--gold);
+    }
+    .form-input {
+      width: 100%;
+      padding: 0.65rem 0.8rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(107, 33, 168, 0.2);
+    }
+    .form-input.error {
+      border-color: var(--red);
+      box-shadow: 0 0 0 2px rgba(231,76,60,0.15);
+    }
+
+    /* Submit button */
+    .submit-btn {
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      margin: 2.5rem auto 0;
+      padding: 1rem 2rem;
+      background: linear-gradient(135deg, #6b21a8, #7e22ce);
+      color: #ffffff;
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      letter-spacing: 3px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 15px rgba(107, 33, 168, 0.25);
+    }
+    .submit-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 25px rgba(107, 33, 168, 0.35);
+    }
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+    .submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Footer note */
+    .footer-note {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: 2rem;
+      padding: 1rem;
+      border-top: 1px solid var(--border);
+      line-height: 1.5;
+    }
+
+    /* Loading spinner */
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+    }
+    .loading::after {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--red);
+      color: var(--text);
+      padding: 0.8rem 1.2rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      z-index: 10000;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      animation: slideIn 0.3s ease;
+    }
+    .toast.success { border-color: var(--green); }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="page-header">
+    <img src="logo.png" alt="Nexas Pro" class="logo">
+    <h1>PRE-PEDIDO</h1>
+    <p>Selecione os produtos e preencha seus dados para enviar o pedido via WhatsApp</p>
+  </div>
+
+  <!-- Machines -->
+  <h2 class="section-title">Maquinas (Genesis / Blaze)</h2>
+  <table class="product-table" id="maquinas-table">
+    <thead>
+      <tr>
+        <th style="width:60px"></th>
+        <th>Nome</th>
+        <th>Variacao</th>
+        <th style="width:110px">Estoque</th>
+        <th style="width:90px">Qtd</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Cartridges -->
+  <h2 class="section-title">Cartuchos (RL / RS / RM / M1)</h2>
+  <table class="product-table" id="cartuchos-table">
+    <thead>
+      <tr>
+        <th style="width:60px"></th>
+        <th>Nome</th>
+        <th>Diametro</th>
+        <th style="width:110px">Estoque</th>
+        <th style="width:90px">Qtd</th>
+      </tr>
+    </thead>
+    <tbody id="cartuchos-body"></tbody>
+  </table>
+
+  <!-- Customer form -->
+  <div class="customer-section">
+    <h2>Seus Dados</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Nome / Nome Fantasia <span class="req">*</span></label>
+        <input type="text" id="customer-nome" class="form-input" placeholder="Seu nome ou nome fantasia" required>
+      </div>
+      <div class="form-group">
+        <label>E-mail <span class="req">*</span></label>
+        <input type="email" id="customer-email" class="form-input" placeholder="seu@email.com" required>
+      </div>
+      <div class="form-group">
+        <label>Telefone / WhatsApp <span class="req">*</span></label>
+        <input type="tel" id="customer-telefone" class="form-input" placeholder="(11) 99999-9999" required>
+      </div>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <button class="submit-btn" id="submit-btn" onclick="submitPreorder()">
+    FINALIZAR PRE-PEDIDO
+  </button>
+
+  <div class="footer-note">
+    Para enviar seu pre-pedido da Nexas Pro via WhatsApp, certifique-se de estar logado no WhatsApp Web se estiver usando o computador. Recomendamos que o envio seja feito pelo celular para evitar falhas.
+  </div>
+</div>
+
+<script>
+  const IMG_GENESIS = 'maquina_de_tatuagem_pen_genesis_com_bateria_wirelless_com_regulagem_de_curso_1809_1_bb21ce84e46e84711d1b14feb746fc3f.webp';
+  const IMG_BLAZE = 'maquina_de_tatuagem_pen_wireless_blaze_nexas_pro_recarregavel_2747_variacao_29151_1_6f68f06889a2f10e2fa02f79ad5463ff.webp';
+  const IMG_CARTUCHO = 'cartucho_de_tatuagem_scarlat_premium_pintura_magnum_mg_caixa_com_20_unidades_2437_1_54c25965130b0b0de76d145390a5c7e4.webp';
+
+  const ordemProdutos = [
+    "Genesis Preto", "Genesis Azul", "Genesis Vermelho", "Genesis Chumbo",
+    "Blaze", "Blaze Preto", "Blaze Cinza",
+    "0403RL", "0405RL", "0603RL", "0605RL", "0801RL", "0803RL", "0805RL", "0807RL", "0809RL", "0811RL", "1001RL", "1003RL", "1005RL", "1007RL", "1009RL", "1011RL", "1013RL", "1014RL", "1015RL", "1201RL", "4001RL",
+    "1203RS", "1205RS", "1207RS", "1209RS", "1211RS", "1213RS", "1214RS",
+    "1005RM", "1205RM", "1007RM", "1207RM", "1009RM", "1209RM", "1011RM", "1211RM", "1013RM", "1213RM", "1015RM", "1215RM", "1017RM", "1217RM", "1019RM", "1219RM", "1021RM", "1221RM", "1023RM", "1223RM", "1025RM", "1027RM",
+    "1205M1", "1207M1", "1209M1", "1211M1", "1213M1", "1215M1", "1217M1", "1219M1", "1221M1", "1223M1", "1025M1", "1027M1"
+  ];
+
+  const subcategorias = [
+    { nome: "Round Liner (RL)", prefixo: "RL", produtos: ["0403RL", "0405RL", "0603RL", "0605RL", "0801RL", "0803RL", "0805RL", "0807RL", "0809RL", "0811RL", "1001RL", "1003RL", "1005RL", "1007RL", "1009RL", "1011RL", "1013RL", "1014RL", "1015RL", "1201RL", "4001RL"] },
+    { nome: "Round Shader (RS)", prefixo: "RS", produtos: ["1203RS", "1205RS", "1207RS", "1209RS", "1211RS", "1213RS", "1214RS"] },
+    { nome: "Round Magnum (RM)", prefixo: "RM", produtos: ["1005RM", "1205RM", "1007RM", "1207RM", "1009RM", "1209RM", "1011RM", "1211RM", "1013RM", "1213RM", "1015RM", "1215RM", "1017RM", "1217RM", "1019RM", "1219RM", "1021RM", "1221RM", "1023RM", "1223RM", "1025RM", "1027RM"] },
+    { nome: "Magnum (M1)", prefixo: "M1", produtos: ["1205M1", "1207M1", "1209M1", "1211M1", "1213M1", "1215M1", "1217M1", "1219M1", "1221M1", "1223M1", "1025M1", "1027M1"] }
+  ];
+
+  function getMachineImage(nome) {
+    if (nome.toLowerCase().startsWith('genesis')) return IMG_GENESIS;
+    if (nome.toLowerCase().startsWith('blaze')) return IMG_BLAZE;
+    return '';
+  }
+
+  function stockBarHTML(estoque) {
+    const colorClass = estoque >= 100 ? 'stock-green' : estoque >= 50 ? 'stock-yellow' : 'stock-red';
+    const width = estoque <= 5 ? 0 : Math.min(estoque, 100);
+    return `<div class="stock-bar-bg"><div class="stock-bar-fill ${colorClass}" style="width:${width}%"></div></div>`;
+  }
+
+  function qtyInputHTML(item) {
+    if (item.estoque <= 5) {
+      return '<span class="esgotado">Esgotado</span>';
+    }
+    return `<input type="number" min="0" max="${item.estoque}" class="qty-input" oninput="validateInput(this, ${item.estoque})" data-prod='${JSON.stringify(item).replace(/'/g, "&#39;")}'>`;
+  }
+
+  function validateInput(input, max) {
+    if (parseInt(input.value) > max) {
+      showToast(`Estoque insuficiente. Maximo: ${max}`);
+      input.value = '';
+    }
+  }
+
+  function showToast(msg, isSuccess) {
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = 'toast' + (isSuccess ? ' success' : '');
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3500);
+  }
+
+  async function fetchProdutos() {
+    const maquinasBody = document.querySelector('#maquinas-table tbody');
+    const cartuchosBody = document.getElementById('cartuchos-body');
+    maquinasBody.innerHTML = '<tr><td colspan="5" class="loading">Carregando produtos</td></tr>';
+    cartuchosBody.innerHTML = '<tr><td colspan="5" class="loading">Carregando cartuchos</td></tr>';
+
+    try {
+      const data = await supabaseRest('products');
+
+      if (!Array.isArray(data)) {
+        showToast('Erro ao carregar produtos.');
+        return;
+      }
+
+      data.sort((a, b) => {
+        const idxA = ordemProdutos.indexOf(a.nome);
+        const idxB = ordemProdutos.indexOf(b.nome);
+        if (idxA === -1 && idxB === -1) return 0;
+        if (idxA === -1) return 1;
+        if (idxB === -1) return -1;
+        return idxA - idxB;
+      });
+
+      maquinasBody.innerHTML = '';
+      cartuchosBody.innerHTML = '';
+
+      // Render machines
+      let machineIdx = 0;
+      data.forEach(item => {
+        if (item.categoria === 'Máquina') {
+          const zebra = machineIdx % 2 === 0 ? 'row-even' : 'row-odd';
+          const img = getMachineImage(item.nome);
+          const imgHTML = img ? `<img src="${img}" alt="${item.nome}" class="product-thumb">` : '';
+          maquinasBody.innerHTML += `
+            <tr class="${zebra}">
+              <td>${imgHTML}</td>
+              <td>${item.nome}</td>
+              <td>${item.taper || '-'}</td>
+              <td>${stockBarHTML(item.estoque)}</td>
+              <td>${qtyInputHTML(item)}</td>
+            </tr>`;
+          machineIdx++;
+        }
+      });
+
+      // Render cartridges by subcategory
+      const cartuchosInseridos = new Set();
+      subcategorias.forEach(subcat => {
+        const produtosSubcat = data.filter(item => subcat.produtos.includes(item.nome));
+        if (produtosSubcat.length > 0) {
+          cartuchosBody.innerHTML += `<tr class="subcat-header"><td colspan="5">${subcat.nome}</td></tr>`;
+          produtosSubcat.forEach((item, idx) => {
+            cartuchosInseridos.add(item.nome);
+            const zebra = idx % 2 === 0 ? 'row-even' : 'row-odd';
+            cartuchosBody.innerHTML += `
+              <tr class="${zebra}">
+                <td><img src="${IMG_CARTUCHO}" alt="cartucho" class="product-thumb"></td>
+                <td>${item.nome}</td>
+                <td>${item.diameter || '-'}</td>
+                <td>${stockBarHTML(item.estoque)}</td>
+                <td>${qtyInputHTML(item)}</td>
+              </tr>`;
+          });
+        }
+      });
+
+      // Other cartridges not in any subcategory
+      const outrosCartuchos = data.filter(item => item.categoria !== 'Máquina' && !cartuchosInseridos.has(item.nome));
+      if (outrosCartuchos.length > 0) {
+        cartuchosBody.innerHTML += `<tr class="subcat-header"><td colspan="5">Outros Cartuchos</td></tr>`;
+        outrosCartuchos.forEach((item, idx) => {
+          const zebra = idx % 2 === 0 ? 'row-even' : 'row-odd';
+          cartuchosBody.innerHTML += `
+            <tr class="${zebra}">
+              <td><img src="${IMG_CARTUCHO}" alt="cartucho" class="product-thumb"></td>
+              <td>${item.nome}</td>
+              <td>${item.diameter || '-'}</td>
+              <td>${stockBarHTML(item.estoque)}</td>
+              <td>${qtyInputHTML(item)}</td>
+            </tr>`;
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Erro ao carregar produtos: ' + err.message);
+    }
+  }
+
+  async function submitPreorder() {
+    const btn = document.getElementById('submit-btn');
+    const nomeFant = document.getElementById('customer-nome').value.trim();
+    const email = document.getElementById('customer-email').value.trim();
+    const telefone = document.getElementById('customer-telefone').value.trim();
+
+    // Clear previous errors
+    document.querySelectorAll('.form-input').forEach(el => el.classList.remove('error'));
+
+    // Validate customer fields
+    let hasError = false;
+    if (!nomeFant) { document.getElementById('customer-nome').classList.add('error'); hasError = true; }
+    if (!email) { document.getElementById('customer-email').classList.add('error'); hasError = true; }
+    if (!telefone) { document.getElementById('customer-telefone').classList.add('error'); hasError = true; }
+    if (hasError) {
+      showToast('Preencha todos os campos obrigatorios.');
+      return;
+    }
+
+    // Collect items with qty > 0
+    const inputs = document.querySelectorAll('.qty-input');
+    const selectedItems = [];
+    inputs.forEach(input => {
+      const qtd = parseInt(input.value);
+      if (qtd > 0) {
+        const produto = JSON.parse(input.getAttribute('data-prod'));
+        selectedItems.push({ ...produto, quantidade: qtd });
+      }
+    });
+
+    if (selectedItems.length === 0) {
+      showToast('Selecione pelo menos 1 item.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'ENVIANDO...';
+
+    try {
+      // 1. Upsert customer — check if exists by email
+      let customerId;
+      const existing = await supabaseRest(`customers?email=eq.${encodeURIComponent(email)}`);
+      if (existing && existing.length > 0) {
+        customerId = existing[0].id;
+      } else {
+        const created = await supabaseRest('customers', {
+          method: 'POST',
+          prefer: 'return=representation',
+          body: { nome_fantasia: nomeFant, email, telefone }
+        });
+        customerId = created[0].id;
+      }
+
+      // 2. Get next order number
+      const orderNumberInt = await supabaseRpc('get_next_order_number');
+
+      // 3. Create preorder
+      const preorder = await supabaseRest('preorders', {
+        method: 'POST',
+        prefer: 'return=representation',
+        body: { customer_id: customerId, status: 'preorder', order_number_int: orderNumberInt }
+      });
+      const preorderId = preorder[0].id;
+
+      // 4. Create preorder items
+      for (const item of selectedItems) {
+        await supabaseRest('preorder_items', {
+          method: 'POST',
+          prefer: 'return=representation',
+          body: { preorder_id: preorderId, product_id: item.id, qty: item.quantidade }
+        });
+      }
+
+      // 5. Build WhatsApp message
+      const itemLines = selectedItems.map(i => `• ${i.quantidade}x ${i.nome}`).join('\n');
+      const message = `Olá! Segue meu pré-pedido Nexas Pro #${orderNumberInt}:\n\n${itemLines}\n\nNome: ${nomeFant}\nWhatsApp: ${telefone}\nEmail: ${email}`;
+
+      // 6. Redirect to WhatsApp
+      window.location.href = `https://wa.me/5511963758505?text=${encodeURIComponent(message)}`;
+
+    } catch (err) {
+      console.error(err);
+      showToast('Erro ao enviar pedido: ' + err.message);
+      btn.disabled = false;
+      btn.textContent = 'FINALIZAR PRE-PEDIDO';
+    }
+  }
+
+  fetchProdutos();
+</script>
+
+</body>
+</html>
