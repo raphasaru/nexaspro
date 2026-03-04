@@ -621,36 +621,29 @@
     btn.textContent = 'ENVIANDO...';
 
     try {
-      // 1. Upsert customer — check if exists by email
-      let customerId;
-      const existing = await supabaseRest(`customers?email=eq.${encodeURIComponent(email)}`);
-      if (existing && existing.length > 0) {
-        customerId = existing[0].id;
-      } else {
-        const created = await supabaseRest('customers', {
-          method: 'POST',
-          prefer: 'return=representation',
-          body: { nome_fantasia: nomeFant, email, telefone }
-        });
-        customerId = created[0].id;
-      }
+      // 1. Upsert customer via RPC (bypasses RLS SELECT restriction)
+      const customerId = await supabaseRpc('get_or_create_customer', {
+        p_nome_fantasia: nomeFant,
+        p_email: email,
+        p_telefone: telefone
+      });
 
       // 2. Get next order number
       const orderNumberInt = await supabaseRpc('get_next_order_number');
 
-      // 3. Create preorder
-      const preorder = await supabaseRest('preorders', {
+      // 3. Create preorder (generate ID client-side to avoid return=representation RLS issue)
+      const preorderId = crypto.randomUUID();
+      await supabaseRest('preorders', {
         method: 'POST',
-        prefer: 'return=representation',
-        body: { customer_id: customerId, status: 'preorder', order_number_int: orderNumberInt }
+        prefer: 'return=minimal',
+        body: { id: preorderId, customer_id: customerId, status: 'preorder', order_number_int: orderNumberInt }
       });
-      const preorderId = preorder[0].id;
 
       // 4. Create preorder items
       for (const item of selectedItems) {
         await supabaseRest('preorder_items', {
           method: 'POST',
-          prefer: 'return=representation',
+          prefer: 'return=minimal',
           body: { preorder_id: preorderId, product_id: item.id, qty: item.quantidade }
         });
       }
